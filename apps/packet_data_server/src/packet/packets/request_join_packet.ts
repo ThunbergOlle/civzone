@@ -1,14 +1,8 @@
-import { RedisWorld } from '@shared';
 import { User } from '@virtcon2/database-postgres';
 import { JoinPacketData, NetworkPacketData, PacketType, RedisPacketPublisher, RequestJoinPacketData } from '@virtcon2/network-packet';
 import { RedisClientType } from 'redis';
 
 export default async function request_join_packet(packet: NetworkPacketData<RequestJoinPacketData>, redisPubClient: RedisClientType) {
-  /* Check if world is currently running in Redis */
-  const world = (await redisPubClient.json.get(`worlds`, {
-    path: `$.${packet.world_id}`,
-  })) as unknown as Array<RedisWorld>;
-
   // get player inventory from database.
   const player = await User.findOne({ where: { token: packet.data.token } });
 
@@ -20,14 +14,5 @@ export default async function request_join_packet(packet: NetworkPacketData<Requ
     .channel(packet.world_id)
     .build();
 
-  // publish the packet
-  if (world.length) {
-    await join_packet.publish();
-  } else {
-    // note: this is not ideal, but it works for now.
-    setTimeout(() => {
-      // wait for rust process to start.
-      join_packet.publish();
-    }, 800);
-  }
+  await join_packet.publish();
 }
