@@ -1,6 +1,5 @@
-import { LogApp, LogLevel, RedisWorld, log } from '@shared';
+import { RedisWorld } from '@shared';
 import { User } from '@virtcon2/database-postgres';
-import { worldService } from '@virtcon2/database-redis';
 import { JoinPacketData, NetworkPacketData, PacketType, RedisPacketPublisher, RequestJoinPacketData } from '@virtcon2/network-packet';
 import { RedisClientType } from 'redis';
 
