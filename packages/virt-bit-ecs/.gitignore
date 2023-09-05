@@ -1,0 +1,5 @@
+.DS_Store
+node_modules
+sandbox
+coverage
+docs/CHANGELOG-next.md

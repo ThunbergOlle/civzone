@@ -1,0 +1,16 @@
+import { DataSource } from "typeorm";
+import entities from "./entity/entities";
+export const enableSQLLogging = false;
+export const AppDataSource = new DataSource({
+  type: "postgres",
+  host: "localhost",
+  port: 5432,
+  username: "postgres",
+  password: "",
+  database: "civzone",
+  synchronize: true,
+  logging: enableSQLLogging,
+  entities: entities,
+  subscribers: [],
+  migrations: [],
+});

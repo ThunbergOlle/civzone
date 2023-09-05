@@ -1,0 +1,18 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug server",
+      "type": "node",
+      "request": "attach",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Debug data server",
+      "type": "node",
+      "request": "attach",
+      "cwd": "${workspaceFolder}",
+      "port": 7777
+    }
+  ]
+}

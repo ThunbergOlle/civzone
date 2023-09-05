@@ -1,0 +1,50 @@
+.window {
+  background-color: #1a1a1a;
+  padding: 0%;
+  position: absolute;
+
+}
+.window .content {
+  padding-top: 10px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+.handle {
+  cursor: -webkit-grab;
+  background-color: #121212;
+}
+.handle:active {
+  cursor: -webkit-grabbing;
+}
+
+.window .close-button {
+  flex: 1;
+  justify-self: flex-end;
+
+  max-width: 40px;
+  max-height: 40px;
+  margin-right: 10px;
+  text-align: center;
+  font-size: 12px;
+  padding: 0px;
+
+  background-color: darkred;
+  border-color: darkred;
+}
+.window .close-button-container {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.window-header .window-header-container {
+  display: flex;
+  justify-content: space-between;
+
+}
+
+.window-header .window-title {
+  flex: 1
+}
