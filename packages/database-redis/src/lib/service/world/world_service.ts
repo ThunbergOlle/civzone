@@ -1,6 +1,5 @@
-import { LogApp, LogLevel, RedisWorld, log } from "@shared";
-import { World as PostgresWorldEntity } from "@virtcon2/database-postgres";
-import { RedisClientType } from "redis";
+import { RedisWorld } from '@shared';
+import { World as PostgresWorldEntity } from '@virtcon2/database-postgres';
 
 const loadWorld = async (world_id: string): Promise<RedisWorld> => {
   const world = await PostgresWorldEntity.findOne({

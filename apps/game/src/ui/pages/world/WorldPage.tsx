@@ -10,14 +10,14 @@ import { WindowStackContext, windowStackReducer } from '../../context/window/Win
 import PlayerInventoryWindow from '../../windows/playerInventory/PlayerInventory';
 
 function GamePage() {
-  const { worldId } = useParams();
+  const { worldName } = useParams();
 
   const [windowStack, setWindowStack] = useReducer(windowStackReducer, []);
   const value = useMemo(() => ({ windowStack, setWindowStack }), [windowStack]);
   const [game, setGame] = useState<Phaser.Game>();
   const navigate = useNavigate();
   useEffect(() => {
-    if (worldId === undefined) {
+    if (worldName === undefined) {
       navigate('/');
       return;
     }
@@ -30,8 +30,8 @@ function GamePage() {
     setGame(phaserGame);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).game = phaserGame;
-    events.notify('joinWorld', worldId);
-  }, [worldId]);
+    events.notify('joinWorld', worldName);
+  }, [worldName]);
 
   useEffect(() => {
     return () => {

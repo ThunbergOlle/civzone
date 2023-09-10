@@ -13,6 +13,5 @@ const item_wood: DBItem = {
     maxHeight: 0.2,
     chance: 0.2,
   },
-  is_building: false,
 };
 export default item_wood;

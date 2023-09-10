@@ -1,19 +1,17 @@
-import { useEffect } from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
-import './App.scss';
-import { events } from './events/Events';
-import LobbyPage from './ui/pages/lobby/LobbyPage';
-import WorldPage from './ui/pages/world/WorldPage';
-import networkError from './ui/errors/network/networkError';
-import { useNavigate } from 'react-router-dom';
-import LoginPage from './ui/pages/login/LoginPage';
 import { ApolloClient, ApolloProvider, HttpLink, InMemoryCache, gql, useQuery } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
 import { apiUrl } from '@shared';
-import { UserContext } from './ui/context/user/UserContext';
+import { useEffect } from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { BrowserRouter, Route, Routes, useNavigate } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import './App.scss';
+import { events } from './events/Events';
+import { UserContext } from './ui/context/user/UserContext';
+import networkError from './ui/errors/network/networkError';
+import LoginPage from './ui/pages/login/LoginPage';
+import WorldPage from './ui/pages/world/WorldPage';
 
 const httpLink = new HttpLink({ uri: apiUrl + '/graphql' });
 const authLink = setContext(async (_, { headers }) => {
@@ -76,9 +74,12 @@ function AppRoutes() {
   }, [navigate]);
 
   useEffect(() => {
-    if (data?.Me == null && !loading) {
+    if (loading) return;
+    if (data?.Me == null) {
       navigate('/login');
+      return;
     }
+    navigate('/world/overworld');
   }, [data, loading, navigate]);
 
   if (loading) return <div>Loading...</div>;
@@ -87,10 +88,8 @@ function AppRoutes() {
   return (
     <UserContext.Provider value={data.Me}>
       <Routes>
-        <Route path="/" element={<LobbyPage />} />
         {!data.Me && <Route path="/login" element={<LoginPage />} />}
-        <Route path="/world/:worldId" element={<WorldPage />} />
-        <Route path="*" element={<LobbyPage />} />
+        <Route path="/world/:worldName" element={<WorldPage />} />
       </Routes>
     </UserContext.Provider>
   );

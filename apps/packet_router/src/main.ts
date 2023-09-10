@@ -2,7 +2,14 @@ import cors from 'cors';
 
 import { LogApp, LogLevel, log } from '@shared';
 import { World } from '@virtcon2/database-redis';
-import { NetworkPacketData, PacketType, RedisPacketPublisher, RequestJoinPacketData } from '@virtcon2/network-packet';
+import {
+  DeconstructRedisPacket,
+  NetworkPacketData,
+  PacketType,
+  RedisPacketBuilder,
+  RequestJoinPacketData,
+  packet_origin_prefixes,
+} from '@virtcon2/network-packet';
 import dotenv from 'dotenv';
 import * as express from 'express';
 import * as http from 'http';
@@ -46,7 +53,13 @@ io.on('connection', (socket) => {
   socket.on('disconnect', async () => {
     const player = await World.getPlayerBySocketId(socket.id, redisClient);
     if (!player) return;
-    await new RedisPacketPublisher(redisPubSub).channel(player.world_id).sender(player).packet_type(PacketType.DISCONNECT).data({ id: player.id }).build().publish();
+    await new RedisPacketBuilder()
+      .sender(player)
+      .target(player.world_id, 'world')
+      .packet_type(PacketType.DISCONNECT)
+      .data({ id: player.id })
+      .build()
+      .publish_redis('overworld', redisPubSub);
   });
 
   socket.on('packet', async (packet: string) => {
@@ -65,13 +78,16 @@ io.on('connection', (socket) => {
       return;
     }
 
-    let packetBuilder = new RedisPacketPublisher(redisPubSub).channel(packetJson.world_id).packet_type(packetJson.packet_type);
+    let packetBuilder = new RedisPacketBuilder().target(packetJson.world_id).packet_type(packetJson.packet_type);
 
-    packetBuilder = packetJson.packet_type === PacketType.REQUEST_JOIN ? packetBuilder.target(socket.id).sender(null) : packetBuilder.target(packetJson.packet_target).sender(sender);
+    packetBuilder =
+      packetJson.packet_type === PacketType.REQUEST_JOIN
+        ? packetBuilder.target(socket.id).sender(null)
+        : packetBuilder.target(packetJson.packet_target).sender(sender);
 
     packetBuilder = packetBuilder.data(packetJson.data);
 
-    await packetBuilder.build().publish();
+    await packetBuilder.build().publish_redis(packet_origin_prefixes.router_server + packetJson.world_id, redisPubSub);
   });
 });
 
@@ -101,22 +117,16 @@ process.on('SIGINT', async () => {
 
   client.pSubscribe('tick_*', (message, channel) => {
     const packets = message.split(';;').filter((packet) => packet.length);
-
     if (!packets.length) return;
+
     for (let i = 0; i < packets.length; i++) {
-      const [packetTarget, packetData] = packets[i].split('#');
+      const packet = DeconstructRedisPacket(packets[i], channel);
 
-      const packetWithStringData = JSON.parse(packetData) as NetworkPacketData<string>;
-      const packetDataJson = JSON.parse(packetWithStringData.data);
-
-      const packet = { ...packetWithStringData, data: packetDataJson } as NetworkPacketData<unknown>;
-
-      const target = packetTarget.split(':')[1];
-
-      if (packetTarget.startsWith('socket:') || packetTarget.startsWith('world:')) {
-        io.sockets.to(target).emit('packet', packet);
+      if (packet.packet_target.startsWith('socket:') || packet.packet_target.startsWith('world:')) {
+        const room = packet.packet_target.split(':')[1];
+        io.sockets.to(room).emit('packet', packet);
       } else {
-        log(`Unknown packet target: ${packetTarget}`, LogLevel.WARN, LogApp.SERVER);
+        log(`Unknown packet target: ${packet.packet_target}`, LogLevel.WARN, LogApp.SERVER);
       }
     }
   });

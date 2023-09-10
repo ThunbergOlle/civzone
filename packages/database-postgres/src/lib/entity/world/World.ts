@@ -1,40 +1,27 @@
-import { WorldSettings } from "@shared";
-import { all_spawnable_db_items } from "@virtcon2/static-game-data";
-import seedRandom from "seedrandom";
-import { createNoise2D } from "simplex-noise";
-import { Field, ObjectType } from "type-graphql";
-import {
-  BaseEntity,
-  BeforeInsert,
-  Column,
-  Entity,
-  OneToMany,
-  PrimaryColumn,
-} from "typeorm";
-import { AppDataSource } from "../../data-source";
-import { Item } from "../item/Item";
-import { User } from "../user/User";
+import { WorldSettings } from '@shared';
+import seedRandom from 'seedrandom';
+import { createNoise2D } from 'simplex-noise';
+import { Field, ObjectType } from 'type-graphql';
+import { BaseEntity, BeforeInsert, Column, Entity, PrimaryColumn } from 'typeorm';
+import { AppDataSource } from '../../data-source';
 
 @ObjectType()
 @Entity()
 export class World extends BaseEntity {
-  @PrimaryColumn({ type: "text", unique: true })
+  @PrimaryColumn({ type: 'text', unique: true })
   @Field(() => String)
-  id: string; // world ID is the player's display name
+  id: string; // id is the world name
 
-  @Column({ type: "int", nullable: false })
+  @Column({ type: 'int', nullable: false })
   @Field(() => Number)
   seed: number;
 
   @BeforeInsert()
   replaceSpacesInId() {
-    this.id = this.id.replace(/\s/g, "_");
+    this.id = this.id.replace(/\s/g, '_');
   }
 
-  static Get2DWorldMap(
-    seed: number,
-    size = WorldSettings.world_size
-  ): number[][] {
+  static Get2DWorldMap(seed: number, size = WorldSettings.world_size): number[][] {
     const randomGenerator = seedRandom(seed);
     const noise = createNoise2D(randomGenerator);
     const map = [];
@@ -47,15 +34,12 @@ export class World extends BaseEntity {
     return map;
   }
 
-  static async GenerateNewWorld(
-    owner: User,
-    size = WorldSettings.world_size
-  ): Promise<World> {
+  static async GenerateNewWorld(world_name: string): Promise<World> {
     return new Promise((resolve) => {
       AppDataSource.manager.transaction(async (transaction) => {
         const world = World.create();
         world.seed = Math.floor(Math.random() * 1000000000);
-        world.id = owner.display_name.replace(/\s/g, "_"); // replace spaces with underscores
+        world.id = world_name;
 
         await transaction.save(world);
 

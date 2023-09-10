@@ -1,4 +1,3 @@
-
 import { Socket, io } from 'socket.io-client';
 import { events } from '../events/Events';
 import Game from '../scenes/Game';
@@ -16,7 +15,7 @@ export class Network {
     this.socket = socket;
 
     socket.on('connect', () => {
-      console.log('Connected to server');
+      console.log('Websocket connected to server');
       this.isConnected = true;
     });
 
@@ -24,7 +23,7 @@ export class Network {
       const event = packetJSON.packet_type.charAt(0).toUpperCase() + packetJSON.packet_type.slice(1);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       events.notify(('network' + event) as any, packetJSON.data);
-      console.log(`Received packet: ${packetJSON.packet_type}`)
+      console.log(`Received packet: ${packetJSON.packet_type}`);
       this.received_packets.push(packetJSON);
       //events.notify(('network' + event) as any, packetJSON.data);
     });
@@ -35,10 +34,14 @@ export class Network {
   public clear_received_packets() {
     this.received_packets = [];
   }
-  join(worldId: string) {
-    Game.worldId = worldId;
+  join(worldName: string) {
+    Game.worldName = worldName;
     const token = localStorage.getItem('token');
-    const packet: NetworkPacketData<RequestJoinPacketData> = { data: { socket_id: '', token: token || '' }, packet_type: PacketType.REQUEST_JOIN, world_id: Game.worldId };
+    const packet: NetworkPacketData<RequestJoinPacketData> = {
+      data: { socket_id: '', token: token || '' },
+      packet_type: PacketType.REQUEST_JOIN,
+      world_id: Game.worldName,
+    };
     this.sendPacket(packet);
   }
   disconnect() {
@@ -46,7 +49,7 @@ export class Network {
     this.socket.disconnect();
   }
   sendPacket(packet: NetworkPacketData<unknown>) {
-    packet.world_id = Game.worldId;
+    packet.world_id = Game.worldName;
     if (!packet.packet_type || !packet.world_id) {
       console.log('Invalid packet');
       return;

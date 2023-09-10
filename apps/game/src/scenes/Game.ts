@@ -61,7 +61,7 @@ export default class Game extends Scene implements SceneStates {
 
   // * Ticks per second, read more in ClockSystem.ts
   public static tps = 1;
-  public static worldId = '';
+  public static worldName = '';
 
   /* Singelton pattern */
   private static instance: Game;
@@ -100,10 +100,10 @@ export default class Game extends Scene implements SceneStates {
     // this.physics.add.collider(this.state.gameObjectGroups[GameObjectGroups.PLAYER] ?? [], this.state.gameObjectGroups[GameObjectGroups.RESOURCE] ?? []);
     this.physics.add.collider(this.state.gameObjectGroups[GameObjectGroups.PLAYER] ?? [], this.state.gameObjectGroups[GameObjectGroups.TERRAIN] ?? []);
 
-    events.subscribe('joinWorld', (worldId) => {
+    events.subscribe('joinWorld', (worldName) => {
       console.log('creating scene');
       this.physics.world.createDebugGraphic();
-      Game.network.join(worldId);
+      Game.network.join(worldName);
     });
     events.subscribe('networkLoadWorld', ({ world, player }) => {
       this.state.world_id = world.id;
@@ -137,7 +137,6 @@ export default class Game extends Scene implements SceneStates {
   }
   setupWorld(ecsWorld: IWorld, world: RedisWorld, player: ServerPlayer) {
     this.cameras.main.setBounds(0, 0, this.map.widthInPixels, this.map.heightInPixels);
-
     createNewMainPlayerEntity(this.state, ecsWorld, player);
 
     /* Load players that are already on the world */
@@ -163,10 +162,10 @@ export default class Game extends Scene implements SceneStates {
       !this.playerReceiveNetworkSystem ||
       !this.colliderSystem ||
       !this.spriteRegisterySystem ||
-      !this.playerSendNetworkSystem ||
-      !this.resourceSystem
-    )
+      !this.playerSendNetworkSystem
+    ) {
       return;
+    }
 
     let newState = { ...this.state, dt: dt };
     const packets = Game.network.get_received_packets();
@@ -176,7 +175,6 @@ export default class Game extends Scene implements SceneStates {
     newState = this.mainPlayerSystem(this.world, newState, packets).state;
     newState = this.playerReceiveNetworkSystem(this.world, newState, packets).state;
     newState = this.spriteSystem(this.world, newState, packets).state;
-    newState = this.resourceSystem(this.world, newState, packets).state;
     newState = this.playerSendNetworkSystem(this.world, newState, packets).state;
 
     // Update state

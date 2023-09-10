@@ -13,6 +13,5 @@ const item_iron: DBItem = {
     maxHeight: 0.5,
     chance: 0.1,
   },
-  is_building: false,
 };
 export default item_iron;

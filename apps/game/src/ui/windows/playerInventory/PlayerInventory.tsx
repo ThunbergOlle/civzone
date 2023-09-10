@@ -1,12 +1,7 @@
 import { InventoryType, ServerInventoryItem } from '@shared';
 import { NetworkPacketData, PacketType, RequestMoveInventoryItemPacketData, RequestPlayerInventoryPacket } from '@virtcon2/network-packet';
-import { addComponent, addEntity } from '@virtcon2/virt-bit-ecs';
 import { useContext, useEffect, useRef, useState } from 'react';
-import { Collider } from '../../../components/Collider';
 
-import { Position } from '../../../components/Position';
-import { Sprite } from '../../../components/Sprite';
-import { ItemTextureMap } from '../../../config/SpriteMap';
 import { events } from '../../../events/Events';
 import Game from '../../../scenes/Game';
 import InventoryItem, { InventoryItemPlaceholder, InventoryItemType } from '../../components/inventoryItem/InventoryItem';

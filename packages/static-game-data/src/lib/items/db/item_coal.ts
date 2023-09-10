@@ -8,7 +8,6 @@ const item_coal: DBItem = {
   icon: 'coal.png',
   rarity: DBItemRarity.common,
   stack_size: 256,
-  is_building: false,
   spawnSettings: {
     minHeight: 0.2,
     maxHeight: 0.35,

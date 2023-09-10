@@ -13,6 +13,5 @@ const item_stone: DBItem = {
     maxHeight: 0.3,
     chance: 0.15,
   },
-  is_building: false,
 };
 export default item_stone;

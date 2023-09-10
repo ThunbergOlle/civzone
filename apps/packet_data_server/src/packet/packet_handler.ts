@@ -11,8 +11,9 @@ import request_join_packet from './packets/request_join_packet';
 import request_player_inventory_packet from './packets/request_player_inventory_packet';
 
 import request_move_inventory_item_packet from './packets/request_move_inventory_item_packet';
+import { LogLevel, log } from '@shared';
 
-export default function all_packet_handler(packet: NetworkPacketData<unknown>, redisPubClient: RedisClientType, packet_queue: NetworkPacketData<unknown>[]) {
+export function async_packet_handler(packet: NetworkPacketData<unknown>, redisPubClient: RedisClientType, packet_queue: NetworkPacketData<unknown>[]) {
   switch (packet.packet_type) {
     case PacketType.REQUEST_PLAYER_INVENTORY: {
       request_player_inventory_packet(packet as NetworkPacketDataWithSender<RequestPlayerInventoryPacket>, redisPubClient);
@@ -25,11 +26,11 @@ export default function all_packet_handler(packet: NetworkPacketData<unknown>, r
 
     case PacketType.REQUEST_MOVE_INVENTORY_ITEM: {
       packet_queue.push(packet);
-      // request_move_inventory_item_packet(packet as NetworkPacketDataWithSender<RequestMoveInventoryItemPacketData>, redisPubClient);
       break;
     }
 
     default: {
+      log(`Unhandled packet type: ${packet.packet_type}`, LogLevel.WARN);
       break;
     }
   }
