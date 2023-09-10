@@ -1,7 +1,6 @@
 import cors from 'cors';
 
 import { LogApp, LogLevel, log } from '@shared';
-import { World } from '@virtcon2/database-redis';
 import {
   DeconstructRedisPacket,
   NetworkPacketData,
@@ -16,6 +15,7 @@ import * as http from 'http';
 import { cwd } from 'process';
 import { RedisClientType, createClient, createClient as createRedisClient } from 'redis';
 import * as socketio from 'socket.io';
+import { RedisPlayerUtils } from '@virtcon2/database-redis';
 
 dotenv.config({ path: `${cwd()}/.env` });
 
@@ -51,8 +51,11 @@ const io = new socketio.Server(server, {
 
 io.on('connection', (socket) => {
   socket.on('disconnect', async () => {
-    const player = await World.getPlayerBySocketId(socket.id, redisClient);
+    const player = await RedisPlayerUtils.getPlayerBySocketId(socket.id, redisClient);
     if (!player) return;
+
+    RedisPlayerUtils.removePlayer(player.id, player.world_id, redisClient);
+
     await new RedisPacketBuilder()
       .sender(player)
       .target(player.world_id, 'world')
@@ -63,7 +66,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('packet', async (packet: string) => {
-    const sender = await World.getPlayerBySocketId(socket.id, redisClient);
+    const sender = await RedisPlayerUtils.getPlayerBySocketId(socket.id, redisClient);
     const packetJson = JSON.parse(packet) as NetworkPacketData<unknown>;
     packetJson.world_id = packetJson.world_id.replace(/\s/g, '_'); // replace all spaces in world_id with underscores
     if (packetJson.packet_type === PacketType.REQUEST_JOIN) {

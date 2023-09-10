@@ -21,3 +21,5 @@ export * from './lib/service/packets/RequestJoinPacket';
 export * from './lib/service/packets/RequestPlaceBuilding';
 
 export * from './lib/service/packets/RequestMoveInventoryItemPacket';
+
+export * from './lib/service/packets/RequestDisconnectPacket';

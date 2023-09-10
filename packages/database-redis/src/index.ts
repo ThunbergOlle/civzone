@@ -1,2 +1,2 @@
-export * from './lib/service/world/world_service';
-export * from './lib/service/world/world_utils';
+export * from './lib/world/world_utils';
+export * from './lib/player/player_utils';

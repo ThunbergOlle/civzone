@@ -2,18 +2,18 @@ import {
   NetworkPacketData,
   NetworkPacketDataWithSender,
   PacketType,
+  PlayerMovePacketData,
   RequestJoinPacketData,
-  RequestMoveInventoryItemPacketData,
   RequestPlayerInventoryPacket,
 } from '@virtcon2/network-packet';
 import { RedisClientType } from 'redis';
 import request_join_packet from './packets/request_join_packet';
 import request_player_inventory_packet from './packets/request_player_inventory_packet';
 
-import request_move_inventory_item_packet from './packets/request_move_inventory_item_packet';
 import { LogLevel, log } from '@shared';
+import player_set_position from './packets/player_set_position';
 
-export function async_packet_handler(packet: NetworkPacketData<unknown>, redisPubClient: RedisClientType, packet_queue: NetworkPacketData<unknown>[]) {
+export function packet_handler(packet: NetworkPacketData<unknown>, redisPubClient: RedisClientType) {
   switch (packet.packet_type) {
     case PacketType.REQUEST_PLAYER_INVENTORY: {
       request_player_inventory_packet(packet as NetworkPacketDataWithSender<RequestPlayerInventoryPacket>, redisPubClient);
@@ -23,23 +23,13 @@ export function async_packet_handler(packet: NetworkPacketData<unknown>, redisPu
       request_join_packet(packet as NetworkPacketData<RequestJoinPacketData>, redisPubClient);
       break;
     }
-
-    case PacketType.REQUEST_MOVE_INVENTORY_ITEM: {
-      packet_queue.push(packet);
+    case PacketType.PLAYER_SET_POSITION: {
+      player_set_position(packet as NetworkPacketDataWithSender<PlayerMovePacketData>, redisPubClient);
       break;
     }
 
     default: {
       log(`Unhandled packet type: ${packet.packet_type}`, LogLevel.WARN);
-      break;
-    }
-  }
-}
-
-export async function sync_packet_handler(packet: NetworkPacketData<unknown>, redisPubClient: RedisClientType) {
-  switch (packet.packet_type) {
-    case PacketType.REQUEST_MOVE_INVENTORY_ITEM: {
-      await request_move_inventory_item_packet(packet as NetworkPacketDataWithSender<RequestMoveInventoryItemPacketData>, redisPubClient);
       break;
     }
   }
