@@ -12,8 +12,6 @@ export * from './lib/service/packets/LoadWorldPacket';
 
 export * from './lib/service/packets/DisconnectPacket';
 
-export * from './lib/service/packets/NewPlayerPacket';
-
 export * from './lib/service/packets/PlayerInventoryPacket';
 
 export * from './lib/service/packets/RequestPlayerInventoryPacket';

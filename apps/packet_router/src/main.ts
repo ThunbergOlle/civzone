@@ -66,7 +66,6 @@ io.on('connection', (socket) => {
     const sender = await World.getPlayerBySocketId(socket.id, redisClient);
     const packetJson = JSON.parse(packet) as NetworkPacketData<unknown>;
     packetJson.world_id = packetJson.world_id.replace(/\s/g, '_'); // replace all spaces in world_id with underscores
-
     if (packetJson.packet_type === PacketType.REQUEST_JOIN) {
       packetJson.data = { ...(packetJson.data as RequestJoinPacketData), socket_id: socket.id };
       socket.join(packetJson.world_id);

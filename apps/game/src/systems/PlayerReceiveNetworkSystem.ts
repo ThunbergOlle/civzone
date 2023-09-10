@@ -48,7 +48,7 @@ export const createNewPlayerEntity = (joinPacket: JoinPacketData, world: IWorld,
   state.playerById[player] = joinPacket.id;
   Player.player[player] = player;
   addComponent(world, Collider, player);
-  Collider.static[player] = 1;
+  Collider.static[player] = 0;
   Collider.group[player] = GameObjectGroups.PLAYER;
 };
 
